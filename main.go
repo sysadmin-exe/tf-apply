@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
+	"time"
 )
 
 // declare variables as struct
@@ -47,8 +49,13 @@ func tfApplyApproval() bool {
 	return applyChanges
 }
 
-// run terraform plan and apply and show use output
-func tfRun() {
+func printWithTimestamp(message string) {
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	fmt.Printf("[%v] %v\n", timestamp, message)
+}
+
+// run terraform plan and show output
+func tfPlan() {
 	var resourceCountAsStr string
 
 	resourceType, resourceCount := getUserInput()
@@ -61,49 +68,120 @@ func tfRun() {
 	// add logic for terraform plan
 	// Run `terraform init`
 	initCmd := exec.Command("terraform", "-chdir=terraform-resources", "init")
-	output, err := initCmd.CombinedOutput()
-	if err != nil {
-		fmt.Println("Error running terraform init:", err)
-		fmt.Println("Output:", string(output))
-		return
+	initStdout, _ := initCmd.StdoutPipe()
+	initStderr, _ := initCmd.StderrPipe()
+	initCmd.Start()
+	go func() {
+		io.Copy(os.Stdout, initStdout)
+	}()
+
+	go func() {
+		io.Copy(os.Stderr, initStderr)
+	}()
+
+	if err := initCmd.Wait(); err != nil {
+		printWithTimestamp(fmt.Sprintf("Error running terraform init: %s", err))
+		os.Exit(1)
 	}
-	fmt.Println("Terraform init successful")
+	printWithTimestamp("Terraform init successful")
 
 	// Run `terraform plan`
 	planCmd := exec.Command("terraform", "-chdir=terraform-resources", "plan")
-	output, err = planCmd.CombinedOutput()
-	if err != nil {
-		fmt.Println("Error running terraform plan:", err)
-		fmt.Println("Output:", string(output))
-		return
+	planStdout, _ := planCmd.StdoutPipe()
+	planStderr, _ := planCmd.StderrPipe()
+	planCmd.Start()
+
+	go func() {
+		io.Copy(os.Stdout, planStdout)
+	}()
+
+	go func() {
+		io.Copy(os.Stderr, planStderr)
+	}()
+
+	if err := planCmd.Wait(); err != nil {
+		printWithTimestamp(fmt.Sprintf("Error running terraform plan: %s", err))
+		os.Exit(1)
 	}
-	fmt.Println("Terraform plan successful")
+	printWithTimestamp("Terraform plan successful")
+}
+
+// run terraform plan, apply and show output
+func tfApply() {
+	var resourceCountAsStr string
+
+	resourceType, resourceCount := getUserInput()
+	fmt.Printf("Planning to create %v instance of %v...\n", resourceCount, resourceType)
+
+	resourceCountAsStr = strconv.Itoa(int(resourceCount))
+	os.Setenv("TF_VAR_resource_count", resourceCountAsStr)
+	os.Setenv("TF_VAR_resource_name", resourceType)
+
+	// Run `terraform init`
+	initCmd := exec.Command("terraform", "-chdir=terraform-resources", "init")
+	initStdout, _ := initCmd.StdoutPipe()
+	initStderr, _ := initCmd.StderrPipe()
+	initCmd.Start()
+	go func() {
+		io.Copy(os.Stdout, initStdout)
+	}()
+
+	go func() {
+		io.Copy(os.Stderr, initStderr)
+	}()
+
+	if err := initCmd.Wait(); err != nil {
+		printWithTimestamp(fmt.Sprintf("Error running terraform init: %s", err))
+		os.Exit(1)
+	}
+	printWithTimestamp("Terraform init successful")
+
+	// Run `terraform plan`
+	planCmd := exec.Command("terraform", "-chdir=terraform-resources", "plan")
+	planStdout, _ := planCmd.StdoutPipe()
+	planStderr, _ := planCmd.StderrPipe()
+	planCmd.Start()
+
+	go func() {
+		io.Copy(os.Stdout, planStdout)
+	}()
+
+	go func() {
+		io.Copy(os.Stderr, planStderr)
+	}()
+
+	if err := planCmd.Wait(); err != nil {
+		printWithTimestamp(fmt.Sprintf("Error running terraform plan: %s", err))
+		os.Exit(1)
+	}
+	printWithTimestamp("Terraform plan successful")
 
 	applyChanges := tfApplyApproval()
 	if applyChanges {
 		fmt.Printf("Creating %v instance of %v...\n", resourceCount, resourceType)
-		// add logic for terraform apply
 		// Run `terraform apply`
 		applyCmd := exec.Command("terraform", "-chdir=terraform-resources", "apply", "-auto-approve")
-		output, err = applyCmd.CombinedOutput()
-		if err != nil {
-			fmt.Println("Error running terraform apply:", err)
-			fmt.Println("Output:", string(output))
-			return
+		applyStdout, _ := applyCmd.StdoutPipe()
+		applyStderr, _ := applyCmd.StderrPipe()
+		applyCmd.Start()
+
+		go func() {
+			io.Copy(os.Stdout, applyStdout)
+		}()
+
+		go func() {
+			io.Copy(os.Stderr, applyStderr)
+		}()
+
+		if err := applyCmd.Wait(); err != nil {
+			printWithTimestamp(fmt.Sprintf("Error running terraform apply: %s", err))
+			os.Exit(1)
 		}
-		fmt.Println("Terraform apply successful")
-	} else {
-		fmt.Printf("Will not %v instance of %v. Exiting...\n", resourceCount, resourceType)
+		printWithTimestamp("Terraform apply successful")
 	}
-
 }
-
-// give results and output of resource created
-// func tfApplyOutput() {
-
-// }
 
 func main() {
 	greetUsers()
-	tfRun()
+	tfApply()
 }

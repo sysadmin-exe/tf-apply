@@ -11,4 +11,8 @@ variable "resource_count" {
 variable "resource_name" {
   type = string
   description = "File name"
+  validation {
+    condition     = can(regex("null|ec2|rds", var.resource_name))
+    error_message = "The only resource that can be created are null | ec2 | rds "
+  }
 }
