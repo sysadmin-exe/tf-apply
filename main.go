@@ -13,6 +13,7 @@ import (
 // type userInput struct {
 // 	resourceType  string
 // 	resourceCount uint
+// 	tfAction      string
 // }
 
 // var resourceDetails = make([]userInput, 0)
@@ -22,9 +23,10 @@ func greetUsers() {
 	fmt.Printf("You are now using TF-APPLY -  The best terraform orchestrator for non-tech users\n")
 }
 
-func getUserInput() (string, uint) {
+func getUserInput() (string, uint, string) {
 	var resourceType string
 	var resourceCount uint
+	var tfAction string
 
 	fmt.Println("What resource do you want to create: ")
 	fmt.Scan(&resourceType)
@@ -32,7 +34,10 @@ func getUserInput() (string, uint) {
 	fmt.Println("How many of this resource do you want to create: ")
 	fmt.Scan(&resourceCount)
 
-	return resourceType, resourceCount
+	fmt.Println("Plan or Apply: ")
+	fmt.Scan(&tfAction)
+
+	return resourceType, resourceCount, tfAction
 }
 
 // get permission to run by typing yes or no
@@ -55,10 +60,9 @@ func printWithTimestamp(message string) {
 }
 
 // run terraform plan and show output
-func tfPlan() {
+func tfPlan(resourceType string, resourceCount uint) {
 	var resourceCountAsStr string
 
-	resourceType, resourceCount := getUserInput()
 	fmt.Printf("Planning to create %v instance of %v...\n", resourceCount, resourceType)
 
 	resourceCountAsStr = strconv.Itoa(int(resourceCount))
@@ -107,10 +111,9 @@ func tfPlan() {
 }
 
 // run terraform plan, apply and show output
-func tfApply() {
+func tfApply(resourceType string, resourceCount uint) {
 	var resourceCountAsStr string
 
-	resourceType, resourceCount := getUserInput()
 	fmt.Printf("Planning to create %v instance of %v...\n", resourceCount, resourceType)
 
 	resourceCountAsStr = strconv.Itoa(int(resourceCount))
@@ -183,5 +186,11 @@ func tfApply() {
 
 func main() {
 	greetUsers()
-	tfApply()
+	resourceType, resourceCount, tfAction := getUserInput()
+	if tfAction == "plan" {
+		tfPlan(resourceType, resourceCount)
+	}
+	if tfAction == "apply" {
+		tfApply(resourceType, resourceCount)
+	}
 }
