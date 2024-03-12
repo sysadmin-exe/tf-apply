@@ -20,10 +20,10 @@ import (
 // var resourceDetails = make([]userInput, 0)
 
 // run terraform plan, apply and show output
-func TfApply(resourceType string, resourceCount uint) {
+func TfApply(resourceType string, resourceCount uint, debugEnabled bool) {
 	var resourceCountAsStr string
 
-	fmt.Printf("Planning to create %v instance of %v...\n", resourceCount, resourceType)
+	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create %v instance of %v...\n", resourceCount, resourceType))
 
 	resourceCountAsStr = strconv.Itoa(int(resourceCount))
 	os.Setenv("TF_VAR_resource_count", resourceCountAsStr)
@@ -34,9 +34,11 @@ func TfApply(resourceType string, resourceCount uint) {
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()
-	go func() {
-		io.Copy(os.Stdout, initStdout)
-	}()
+	if debugEnabled {
+		go func() {
+			io.Copy(os.Stdout, initStdout)
+		}()
+	}
 
 	go func() {
 		io.Copy(os.Stderr, initStderr)
@@ -54,9 +56,11 @@ func TfApply(resourceType string, resourceCount uint) {
 	planStderr, _ := planCmd.StderrPipe()
 	planCmd.Start()
 
-	go func() {
-		io.Copy(os.Stdout, planStdout)
-	}()
+	if debugEnabled {
+		go func() {
+			io.Copy(os.Stdout, planStdout)
+		}()
+	}
 
 	go func() {
 		io.Copy(os.Stderr, planStderr)
@@ -70,17 +74,19 @@ func TfApply(resourceType string, resourceCount uint) {
 
 	applyChanges := applyapproval.TfApplyApproval()
 	if applyChanges {
-		fmt.Printf("Creating %v instance of %v...\n", resourceCount, resourceType)
+		printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Creating %v instance of %v...\n", resourceCount, resourceType))
+
 		// Run `terraform apply`
 		applyCmd := exec.Command("terraform", "-chdir=terraform-resources", "apply", "-auto-approve")
 		applyStdout, _ := applyCmd.StdoutPipe()
 		applyStderr, _ := applyCmd.StderrPipe()
 		applyCmd.Start()
 
-		go func() {
-			io.Copy(os.Stdout, applyStdout)
-		}()
-
+		if debugEnabled {
+			go func() {
+				io.Copy(os.Stdout, applyStdout)
+			}()
+		}
 		go func() {
 			io.Copy(os.Stderr, applyStderr)
 		}()

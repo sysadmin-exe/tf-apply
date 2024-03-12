@@ -19,10 +19,10 @@ import (
 // var resourceDetails = make([]userInput, 0)
 
 // run terraform plan and show output
-func TfPlan(resourceType string, resourceCount uint) {
+func TfPlan(resourceType string, resourceCount uint, debugEnabled bool) {
 	var resourceCountAsStr string
 
-	fmt.Printf("Planning to create %v instance of %v...\n", resourceCount, resourceType)
+	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create %v instance of %v...\n", resourceCount, resourceType))
 
 	resourceCountAsStr = strconv.Itoa(int(resourceCount))
 	os.Setenv("TF_VAR_resource_count", resourceCountAsStr)
@@ -34,9 +34,12 @@ func TfPlan(resourceType string, resourceCount uint) {
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()
-	go func() {
-		io.Copy(os.Stdout, initStdout)
-	}()
+
+	if debugEnabled {
+		go func() {
+			io.Copy(os.Stdout, initStdout)
+		}()
+	}
 
 	go func() {
 		io.Copy(os.Stderr, initStderr)
@@ -54,9 +57,11 @@ func TfPlan(resourceType string, resourceCount uint) {
 	planStderr, _ := planCmd.StderrPipe()
 	planCmd.Start()
 
-	go func() {
-		io.Copy(os.Stdout, planStdout)
-	}()
+	if debugEnabled {
+		go func() {
+			io.Copy(os.Stdout, planStdout)
+		}()
+	}
 
 	go func() {
 		io.Copy(os.Stderr, planStderr)
