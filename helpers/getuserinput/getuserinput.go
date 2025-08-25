@@ -4,10 +4,9 @@ import (
 	"fmt"
 )
 
-func GetUserInput() (string, uint, string) {
-	var resourceType string
-	var resourceCount uint
-	var tfAction string
+func GetUserInput() (application string, resourceType string, resourceCount uint, tfAction string) {
+	fmt.Println("Application name: ")
+	fmt.Scan(&application)
 
 	fmt.Println("What resource do you want to create: ")
 	fmt.Scan(&resourceType)
@@ -18,5 +17,5 @@ func GetUserInput() (string, uint, string) {
 	fmt.Println("Plan or Apply: ")
 	fmt.Scan(&tfAction)
 
-	return resourceType, resourceCount, tfAction
+	return application, resourceType, resourceCount, tfAction
 }

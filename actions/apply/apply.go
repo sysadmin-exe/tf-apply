@@ -20,17 +20,18 @@ import (
 // var resourceDetails = make([]userInput, 0)
 
 // run terraform plan, apply and show output
-func TfApply(resourceType string, resourceCount uint, debugEnabled bool) {
+func TfApply(applicationName string, resourceType string, resourceCount uint, debugEnabled bool) {
 	var resourceCountAsStr string
 
-	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create %v instance of %v...\n", resourceCount, resourceType))
+	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create %v instance of %v for application %v...\n", resourceCount, resourceType, applicationName))
 
 	resourceCountAsStr = strconv.Itoa(int(resourceCount))
 	os.Setenv("TF_VAR_resource_count", resourceCountAsStr)
 	os.Setenv("TF_VAR_resource_name", resourceType)
+	os.Setenv("TF_VAR_application_name", applicationName)
 
 	// Run `terraform init`
-	initCmd := exec.Command("terraform", "-chdir=terraform-resources", "init")
+	initCmd := exec.Command("terraform", "-chdir=terraform-resources/"+applicationName, "init")
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()

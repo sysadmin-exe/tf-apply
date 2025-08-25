@@ -10,9 +10,18 @@ variable "resource_count" {
 
 variable "resource_name" {
   type = string
-  description = "File name"
+  description = "Resource Type name"
   validation {
     condition     = can(regex("null|ec2|rds", var.resource_name))
     error_message = "The only resource that can be created are null | ec2 | rds "
+  }
+}
+
+variable "application_name" {
+  type = string
+  description = "Name of the application"
+  validation {
+    condition     = length(var.application_name) > 0
+    error_message = "The application_name must be provided."
   }
 }

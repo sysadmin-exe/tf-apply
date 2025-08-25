@@ -9,12 +9,12 @@ import (
 
 func main() {
 	greetuser.GreetUser()
-	resourceType, resourceCount, tfAction := getuserinput.GetUserInput()
-	debugEnabled := false
+	application, resourceType, resourceCount, tfAction := getuserinput.GetUserInput()
+	debugEnabled := true
 	if tfAction == "plan" {
-		plan.TfPlan(resourceType, resourceCount, debugEnabled)
+		plan.TfPlan(application, resourceType, resourceCount, debugEnabled)
 	}
 	if tfAction == "apply" {
-		apply.TfApply(resourceType, resourceCount, debugEnabled)
+		apply.TfApply(application, resourceType, resourceCount, debugEnabled)
 	}
 }
