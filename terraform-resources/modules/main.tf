@@ -1,21 +1,29 @@
 # This is still a test. Not a real thing in fact. Just wanted different ways to test the go app
+
+locals{
+  resources_map = {for r in var.resources_list : "${r.application_name}-${r.resource_count}-${r.resource_type}" => {
+    application_name = r.application_name
+    resource_type    = r.resource_type
+    resource_count   = r.resource_count
+  }}
+}
 resource "null_resource" "tf_cli_null" {
-  count = var.resource_name == "null" ? var.resource_count : 0
+  for_each = { for k, v in local.resources_map : k => v if v.resource_type == "null" }
   provisioner "local-exec" {
-    command = "echo '###### This is ${var.application_name}-${count.index}-${var.resource_name} file' > ./${var.application_name}-${count.index}-${var.resource_name}.txt"
+    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.resource_type} file' > ./${each.value.application_name}-${each.key}-${each.value.resource_type}.txt"
   }
 }
 
 resource "null_resource" "tf_cli_rds" {
-  count = var.resource_name == "rds" ? var.resource_count : 0
+  for_each = { for k, v in local.resources_map : k => v if v.resource_type == "rds" }
   provisioner "local-exec" {
-    command = "echo '###### This is ${var.application_name}-${count.index}-${var.resource_name} file' > ./${var.application_name}-${count.index}-${var.resource_name}.txt"
+    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.resource_type} file' > ./${each.value.application_name}-${each.key}-${each.value.resource_type}.txt"
   }
 }
 
 resource "null_resource" "tf_cli_ec2" {
-  count = var.resource_name == "ec2" ? var.resource_count : 0
+  for_each = { for k, v in local.resources_map : k => v if v.resource_type == "ec2" }
   provisioner "local-exec" {
-    command = "echo '###### This is ${var.application_name}-${count.index}-${var.resource_name} file' > ./${var.application_name}-${count.index}-${var.resource_name}.txt"
+    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.resource_type} file' > ./${each.value.application_name}-${each.key}-${each.value.resource_type}.txt"
   }
 }

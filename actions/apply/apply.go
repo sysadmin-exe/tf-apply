@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
+	"tf-apply/actions/plan"
 	"tf-apply/helpers/applyapproval"
 	"tf-apply/helpers/printwithtimestamp"
 )
@@ -20,18 +20,14 @@ import (
 // var resourceDetails = make([]userInput, 0)
 
 // run terraform plan, apply and show output
-func TfApply(applicationName string, resourceType string, resourceCount uint, debugEnabled bool) {
-	var resourceCountAsStr string
+func TfApply(resourcesList string, debugEnabled bool) {
+	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create resources\n"))
 
-	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create %v instance of %v for application %v...\n", resourceCount, resourceType, applicationName))
-
-	resourceCountAsStr = strconv.Itoa(int(resourceCount))
-	os.Setenv("TF_VAR_resource_count", resourceCountAsStr)
-	os.Setenv("TF_VAR_resource_name", resourceType)
-	os.Setenv("TF_VAR_application_name", applicationName)
+	// Set environment variables for Terraform
+	os.Setenv("TF_VAR_resources_list", resourcesList)
 
 	// Run `terraform init`
-	initCmd := exec.Command("terraform", "-chdir=terraform-resources/"+applicationName, "init")
+	initCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "init")
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()
@@ -51,34 +47,15 @@ func TfApply(applicationName string, resourceType string, resourceCount uint, de
 	}
 	printwithtimestamp.PrintWithTimestamp("Terraform init successful")
 
-	// Run `terraform plan`
-	planCmd := exec.Command("terraform", "-chdir=terraform-resources", "plan")
-	planStdout, _ := planCmd.StdoutPipe()
-	planStderr, _ := planCmd.StderrPipe()
-	planCmd.Start()
-
-	if debugEnabled {
-		go func() {
-			io.Copy(os.Stdout, planStdout)
-		}()
-	}
-
-	go func() {
-		io.Copy(os.Stderr, planStderr)
-	}()
-
-	if err := planCmd.Wait(); err != nil {
-		printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Error running terraform plan: %s", err))
-		os.Exit(1)
-	}
-	printwithtimestamp.PrintWithTimestamp("Terraform plan successful")
+	// Reuse the plan logic from actions/plan
+	plan.TfPlan(resourcesList, debugEnabled)
 
 	applyChanges := applyapproval.TfApplyApproval()
 	if applyChanges {
-		printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Creating %v instance of %v...\n", resourceCount, resourceType))
+		printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Creating Resources\n"))
 
 		// Run `terraform apply`
-		applyCmd := exec.Command("terraform", "-chdir=terraform-resources", "apply", "-auto-approve")
+		applyCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "apply", "-auto-approve")
 		applyStdout, _ := applyCmd.StdoutPipe()
 		applyStderr, _ := applyCmd.StderrPipe()
 		applyCmd.Start()

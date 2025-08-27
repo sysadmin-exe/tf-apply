@@ -1,11 +1,11 @@
 output "null_resource" {
-  value = null_resource.tf_cli_null.*.id
+  value = { for k, v in null_resource.tf_cli_null : k => v.id }
 }
 
 output "rds_resource" {
-  value = null_resource.tf_cli_rds.*.id
+  value = { for k, v in null_resource.tf_cli_rds : k => v.id }
 }
 
 output "ec2_resource" {
-  value = null_resource.tf_cli_ec2.*.id
+  value = { for k, v in null_resource.tf_cli_ec2 : k => v.id }
 }

@@ -1,0 +1,17 @@
+# inventory.yaml
+# Example inventory file for Terraform
+applications:
+  cloudnova:
+    resources:
+      - type: rds
+        count: 1
+      - type: "null"
+        count: 1
+  happy:
+    resources:
+      - type: ec2
+        count: 2
+  joy:
+    resources:
+      - type: "null"
+        count: 1

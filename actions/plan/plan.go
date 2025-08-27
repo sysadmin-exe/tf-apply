@@ -5,34 +5,17 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"strconv"
 	"tf-apply/helpers/printwithtimestamp"
 )
 
-// declare variables as struct
-// type userInput struct {
-// 	resourceType  string
-// 	resourceCount uint
-// 	tfAction      string
-// }
-
-// var resourceDetails = make([]userInput, 0)
-
 // run terraform plan and show output
-func TfPlan(applicationName string, resourceType string, resourceCount uint, debugEnabled bool) {
-	var resourceCountAsStr string
-
-	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create %v instance of %v for application %v...\n", resourceCount, resourceType, applicationName))
-
-	resourceCountAsStr = strconv.Itoa(int(resourceCount))
-	// set environment variables for terraform
-	os.Setenv("TF_VAR_application_name", applicationName)
-	os.Setenv("TF_VAR_resource_count", resourceCountAsStr)
-	os.Setenv("TF_VAR_resource_name", resourceType)
+func TfPlan(resourcesList string, debugEnabled bool) {
+	// Set environment variables for Terraform
+	os.Setenv("TF_VAR_resources_list", resourcesList)
 
 	// add logic for terraform plan
 	// Run `terraform init`
-	initCmd := exec.Command("terraform", "-chdir=terraform-resources/"+applicationName, "init")
+	initCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "init")
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()
@@ -54,7 +37,7 @@ func TfPlan(applicationName string, resourceType string, resourceCount uint, deb
 	printwithtimestamp.PrintWithTimestamp("Terraform init successful")
 
 	// Run `terraform plan`
-	planCmd := exec.Command("terraform", "-chdir=terraform-resources", "plan")
+	planCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "plan")
 	planStdout, _ := planCmd.StdoutPipe()
 	planStderr, _ := planCmd.StderrPipe()
 	planCmd.Start()
