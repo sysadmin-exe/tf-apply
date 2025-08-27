@@ -8,15 +8,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Inputs under resource object
 type Resource struct {
-	Type  string `yaml:"type"`
-	Count int    `yaml:"count"`
+	Kind string `yaml:"kind"`
+	Env  string `yaml:"env"`
 }
 
+// Inputs under application object
 type Application struct {
 	Resources []Resource `yaml:"resources"`
 }
 
+// Inventory holds all applications and their resources
 type Inventory struct {
 	Applications map[string]Application `yaml:"applications"`
 }
@@ -25,14 +28,14 @@ type Inventory struct {
 type AppResource struct {
 	ApplicationName string
 	ResourceType    string
-	ResourceCount   int
+	ResourceEnv     string
 }
 
 // Convert to the format Terraform expects
 type TfResource struct {
 	ApplicationName string `json:"application_name"`
-	ResourceType    string `json:"resource_type"`
-	ResourceCount   int    `json:"resource_count"`
+	ResourceType    string `json:"kind"`
+	ResourceEnv     string `json:"env"`
 }
 
 // ParseInventoryAll parses inventory.yaml and returns all applications and their resources
@@ -54,8 +57,8 @@ func ParseInventoryAll(filePath string) ([]AppResource, error) {
 		for _, res := range app.Resources {
 			results = append(results, AppResource{
 				ApplicationName: appName,
-				ResourceType:    res.Type,
-				ResourceCount:   res.Count,
+				ResourceType:    res.Kind,
+				ResourceEnv:     res.Env,
 			})
 		}
 	}
@@ -74,11 +77,7 @@ func ToTerraform(filePath string) string {
 	var tfResources []TfResource
 
 	for _, r := range resources {
-		tfResources = append(tfResources, TfResource{
-			ApplicationName: r.ApplicationName,
-			ResourceType:    r.ResourceType,
-			ResourceCount:   r.ResourceCount,
-		})
+		tfResources = append(tfResources, TfResource(r))
 	}
 	jsonBytes, _ := json.Marshal(tfResources)
 	jsonStr := string(jsonBytes)

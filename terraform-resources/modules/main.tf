@@ -1,29 +1,15 @@
 # This is still a test. Not a real thing in fact. Just wanted different ways to test the go app
 
 locals{
-  resources_map = {for r in var.resources_list : "${r.application_name}-${r.resource_count}-${r.resource_type}" => {
+  resources_map = {for r in var.resources_list : "${r.application_name}-${r.env}-${r.kind}" => {
     application_name = r.application_name
-    resource_type    = r.resource_type
-    resource_count   = r.resource_count
+    kind             = r.kind
+    env              = r.env
   }}
 }
-resource "null_resource" "tf_cli_null" {
-  for_each = { for k, v in local.resources_map : k => v if v.resource_type == "null" }
+resource "null_resource" "this" {
+  for_each = local.resources_map
   provisioner "local-exec" {
-    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.resource_type} file' > ./${each.value.application_name}-${each.key}-${each.value.resource_type}.txt"
-  }
-}
-
-resource "null_resource" "tf_cli_rds" {
-  for_each = { for k, v in local.resources_map : k => v if v.resource_type == "rds" }
-  provisioner "local-exec" {
-    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.resource_type} file' > ./${each.value.application_name}-${each.key}-${each.value.resource_type}.txt"
-  }
-}
-
-resource "null_resource" "tf_cli_ec2" {
-  for_each = { for k, v in local.resources_map : k => v if v.resource_type == "ec2" }
-  provisioner "local-exec" {
-    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.resource_type} file' > ./${each.value.application_name}-${each.key}-${each.value.resource_type}.txt"
+    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.kind} file' > ./${each.value.application_name}-${each.key}-${each.value.kind}.txt"
   }
 }

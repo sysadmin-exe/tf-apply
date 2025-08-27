@@ -3,15 +3,15 @@
 applications:
   cloudnova:
     resources:
-      - type: rds
-        count: 1
-      - type: "null"
-        count: 1
+      - kind: rds
+        env: dev
+      - kind: "null"
+        env: dev
   happy:
     resources:
-      - type: ec2
-        count: 2
+      - kind: ec2
+        env: dev
   joy:
     resources:
-      - type: "null"
-        count: 1
+      - kind: "null"
+        env: dev
