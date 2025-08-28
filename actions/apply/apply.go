@@ -10,15 +10,6 @@ import (
 	"tf-apply/helpers/printwithtimestamp"
 )
 
-// declare variables as struct
-// type userInput struct {
-// 	resourceType  string
-// 	resourceCount uint
-// 	tfAction      string
-// }
-
-// var resourceDetails = make([]userInput, 0)
-
 // run terraform plan, apply and show output
 func TfApply(resourcesList string, debugEnabled bool) {
 	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create resources\n"))
