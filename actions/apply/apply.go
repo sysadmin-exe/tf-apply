@@ -12,7 +12,7 @@ import (
 
 // run terraform plan, apply and show output
 func TfApply(resourcesList string, debugEnabled bool) {
-	printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Planning to create resources\n"))
+	printwithtimestamp.PrintWithTimestamp("Planning to create resources\n")
 
 	// Set environment variables for Terraform
 	os.Setenv("TF_VAR_resources_list", resourcesList)
@@ -43,7 +43,7 @@ func TfApply(resourcesList string, debugEnabled bool) {
 
 	applyChanges := applyapproval.TfApplyApproval()
 	if applyChanges {
-		printwithtimestamp.PrintWithTimestamp(fmt.Sprintf("Creating Resources\n"))
+		printwithtimestamp.PrintWithTimestamp("Creating Resources\n")
 
 		// Run `terraform apply`
 		applyCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "apply", "-auto-approve")
