@@ -6,5 +6,17 @@ import (
 
 // Get input
 func GreetUser() {
-	fmt.Printf("You are now using TF-APPLY -  The best terraform orchestrator for non-tech users\n")
+	fmt.Println("=================================================")
+	fmt.Println("|                                          	|")
+	fmt.Println("|   ████████╗██████╗      █████╗ ██████╗    	|")
+	fmt.Println("|   ╚══██╔══╝██╔══██╗    ██╔══██╗██╔══██╗   	|")
+	fmt.Println("|   ███████╗███████║    ███████║██████╔╝   	|")
+	fmt.Println("|   ██╔═══██║██╔══██║    ██╔══██║██╔══██╗   	|")
+	fmt.Println("|   ██║   ██║██║  ██║    ██║  ██║██║  ██║   	|")
+	fmt.Println("|   ╚═╝   ╚═╝╚═╝  ╚═╝    ╚═╝  ╚═╝╚═╝  ╚═╝   	|")
+	fmt.Println("|                                          	|")
+	fmt.Println("|  TERRA-FIC - A \"Terrific\" Wrapper       	|")
+	fmt.Println("|  For Terraform Written In Go            	|")
+	fmt.Println("|                                          	|")
+	fmt.Println("=================================================")
 }

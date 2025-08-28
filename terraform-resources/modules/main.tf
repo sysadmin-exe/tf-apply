@@ -10,6 +10,6 @@ locals{
 resource "null_resource" "this" {
   for_each = local.resources_map
   provisioner "local-exec" {
-    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.kind} file' > ./${each.value.application_name}-${each.key}-${each.value.kind}.txt"
+    command = "echo '###### This is ${each.value.application_name}-${each.key}-${each.value.kind} file' > ${path.root}/modules/${each.value.application_name}-${each.key}-${each.value.kind}.txt"
   }
 }

@@ -15,7 +15,7 @@ func TfPlan(resourcesList string, debugEnabled bool) {
 
 	// add logic for terraform plan
 	// Run `terraform init`
-	initCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "init")
+	initCmd := exec.Command("terraform", "-chdir=terraform-resources", "init")
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()
@@ -37,7 +37,7 @@ func TfPlan(resourcesList string, debugEnabled bool) {
 	printwithtimestamp.PrintWithTimestamp("Terraform init successful")
 
 	// Run `terraform plan`
-	planCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "plan")
+	planCmd := exec.Command("terraform", "-chdir=terraform-resources", "plan")
 	planStdout, _ := planCmd.StdoutPipe()
 	planStderr, _ := planCmd.StderrPipe()
 	planCmd.Start()

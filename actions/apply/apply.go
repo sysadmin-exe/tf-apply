@@ -18,7 +18,7 @@ func TfApply(resourcesList string, debugEnabled bool) {
 	os.Setenv("TF_VAR_resources_list", resourcesList)
 
 	// Run `terraform init`
-	initCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "init")
+	initCmd := exec.Command("terraform", "-chdir=terraform-resources", "init")
 	initStdout, _ := initCmd.StdoutPipe()
 	initStderr, _ := initCmd.StderrPipe()
 	initCmd.Start()
@@ -46,7 +46,7 @@ func TfApply(resourcesList string, debugEnabled bool) {
 		printwithtimestamp.PrintWithTimestamp("Creating Resources\n")
 
 		// Run `terraform apply`
-		applyCmd := exec.Command("terraform", "-chdir=terraform-resources/modules", "apply", "-auto-approve")
+		applyCmd := exec.Command("terraform", "-chdir=terraform-resources", "apply", "-auto-approve")
 		applyStdout, _ := applyCmd.StdoutPipe()
 		applyStderr, _ := applyCmd.StderrPipe()
 		applyCmd.Start()
